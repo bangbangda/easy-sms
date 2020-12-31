@@ -44,6 +44,11 @@
 - [网易云信](https://yunxin.163.com/sms)
 - [云之讯](https://www.ucpaas.com/index.html)
 - [凯信通](http://www.kingtto.cn/)
+- [七牛云](https://www.qiniu.com/)
+- [UE35.net](http://uesms.ue35.cn/)
+- [Ucloud](https://www.ucloud.cn)
+- [短信宝](http://www.smsbao.com/)
+- [Tiniyo](https://tiniyo.com/)
 
 ## 环境需求
 
@@ -59,7 +64,7 @@ $ composer require "overtrue/easy-sms"
 
 如果你喜欢使用 [Laravel Notification](https://laravel.com/docs/5.8/notifications), 可以考虑直接使用朋友封装的拓展包：
 
-https://github.com/yangliulnn/easysms-notification-channel
+https://github.com/yl/easysms-notification-channel
 
 ## 使用
 
@@ -211,7 +216,7 @@ $easySms->send(13188888888, [
 $e->getResults();               // 返回所有 API 的结果，结构同上
 $e->getExceptions();            // 返回所有调用异常列表
 $e->getException($gateway);     // 返回指定网关名称的异常对象
-$e->getLastException();         // 获取最后一个失败的异常对象 
+$e->getLastException();         // 获取最后一个失败的异常对象
 ```
 
 ## 自定义网关
@@ -292,7 +297,7 @@ class OrderPaidMessage extends Message
     // 定义直接使用内容发送平台的内容
     public function getContent(GatewayInterface $gateway = null)
     {
-        return sprintf('您的订单:%s, 已经完成付款', $this->order->no);    
+        return sprintf('您的订单:%s, 已经完成付款', $this->order->no);
     }
 
     // 定义使用模板发送方式平台所需要的模板 ID
@@ -305,8 +310,8 @@ class OrderPaidMessage extends Message
     public function getData(GatewayInterface $gateway = null)
     {
         return [
-            'order_no' => $this->order->no    
-        ];    
+            'order_no' => $this->order->no
+        ];
     }
 }
 ```
@@ -462,18 +467,18 @@ $easySms->send(13188888888, $message);
     'chuanglan' => [
         'account' => '',
         'password' => '',
-        
+
         // 国际短信时必填
         'intel_account' => '',
         'intel_password' => '',
 
         // \Overtrue\EasySms\Gateways\ChuanglanGateway::CHANNEL_VALIDATE_CODE  => 验证码通道（默认）
         // \Overtrue\EasySms\Gateways\ChuanglanGateway::CHANNEL_PROMOTION_CODE => 会员营销通道
-        'channel'  => \Overtrue\EasySms\Gateways\ChuanglanGateway::CHANNEL_VALIDATE_CODE, 
+        'channel'  => \Overtrue\EasySms\Gateways\ChuanglanGateway::CHANNEL_VALIDATE_CODE,
 
         // 会员营销通道 特定参数。创蓝规定：api提交营销短信的时候，需要自己加短信的签名及退订信息
         'sign' => '【通讯云】',
-        'unsubscribe' => '回TD退订', 
+        'unsubscribe' => '回TD退订',
     ],
 ```
 
@@ -502,7 +507,7 @@ $easySms->send(13188888888, $message);
 
 ### [twilio](https://www.twilio.com)
 
-短信使用 `content`  
+短信使用 `content`
 发送对象需要 使用`+`添加区号
 
 ```php
@@ -512,6 +517,20 @@ $easySms->send(13188888888, $message);
         'token' => '', // apitoken
     ],
 ```
+
+### [tiniyo](https://www.tiniyo.com)
+
+短信使用 `content`
+发送对象需要 使用`+`添加区号
+
+```php
+    'tiniyo' => [
+        'account_sid' => '', // auth_id from https://tiniyo.com
+        'from' => '', // 发送的号码 可以在控制台购买
+        'token' => '', // auth_secret from https://tiniyo.com
+    ],	    
+```
+
 
 ### [腾讯云 SMS](https://cloud.tencent.com/product/sms)
 
@@ -523,6 +542,18 @@ $easySms->send(13188888888, $message);
         'app_key' => '', // APP KEY
         'sign_name' => '', // 短信签名，如果使用默认签名，该字段可缺省（对应官方文档中的sign）
     ],
+```
+
+发送示例：
+
+```php
+$easySms->send(18888888888, [
+    'template' => 101234, // 模板ID
+    'content' => "您的动态验证码为：{1}，请于5分钟内完成验证，如非本人操作，请忽略本短信！", // 模板内容
+    'data' => [ 
+        $code, // 模板变量
+    ],
+]);
 ```
 
 ### [阿凡达数据](http://www.avatardata.cn/)
@@ -639,6 +670,66 @@ $easySms->send(18888888888, [
 $easySms->send(18888888888, [
     'content'  => '您的验证码为: 6379',
 ]);
+```
+
+### [七牛云](https://www.qiniu.com/)
+
+短信内容使用 `template` + `data`
+
+```php
+    'qiniu' => [
+        'secret_key' => '',
+        'access_key' => '',
+    ],
+```
+
+```php
+$easySms->send(18888888888, [
+    'template' => '1231234123412341234',
+    'data' => [
+        'code' => 1234,
+    ],
+]);
+```
+### [Ucloud](https://www.ucloud.cn/)
+短信使用 `template` + `data`
+
+```php
+  'ucloud' => [
+        'private_key'  => '',    //私钥
+        'public_key'   => '',    //公钥
+        ’sig_content‘  => '',    // 短信签名,
+        'project_id'   => '',    //项目ID,子账号才需要该参数
+    ],
+```
+
+```php
+$easySms->send(18888888888, [
+    'template' => 'UTAXXXXX',       //短信模板
+    'data' => [
+        'code' => 1234,     //模板参数，模板没有参数不用则填写，有多个参数请用数组，[1111,1111]
+        'mobiles' =>'',     //同时发送多个手机短信，请用数组[xxx,xxx]
+    ],
+]);
+
+```
+
+
+### [短信宝](http://www.smsbao.com/)
+短信使用 `template`
+
+```php
+  'smsbao' => [
+        'user'  => '',    //账号
+        'password'   => ''   //密码
+    ],
+```
+
+```php
+$easySms->send(18888888888, [
+    'template' => '您的验证码为: 6379',       //短信模板
+]);
+
 ```
 
 ## PHP 扩展包开发
